@@ -7,11 +7,24 @@ import {
 } from "./constants";
 import { IPeriodicNoteSettings } from "./types";
 
+/**
+ * Resolve the periodic-notes plugin instance, preferring a side-installed
+ * dev build (id "periodic-notes-anks") over the community-store build.
+ */
+function getPeriodicNotesPlugin() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pluginManager = (<any>window.app).plugins;
+  // Try dev version first, then fall back to production
+  return (
+    pluginManager.getPlugin("periodic-notes-anks") ||
+    pluginManager.getPlugin("periodic-notes")
+  );
+}
+
 export function shouldUsePeriodicNotesSettings(
   periodicity: "daily" | "weekly" | "monthly" | "quarterly" | "yearly"
 ): boolean {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const periodicNotes = (<any>window.app).plugins.getPlugin("periodic-notes");
+  const periodicNotes = getPeriodicNotesPlugin();
   return periodicNotes && periodicNotes.settings?.[periodicity]?.enabled;
 }
 
@@ -22,11 +35,11 @@ export function shouldUsePeriodicNotesSettings(
 export function getDailyNoteSettings(): IPeriodicNoteSettings {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { internalPlugins, plugins } = <any>window.app;
+    const { internalPlugins } = <any>window.app;
 
     if (shouldUsePeriodicNotesSettings("daily")) {
       const { format, folder, template } =
-        plugins.getPlugin("periodic-notes")?.settings?.daily || {};
+        getPeriodicNotesPlugin()?.settings?.daily || {};
       return {
         format: format || DEFAULT_DAILY_NOTE_FORMAT,
         folder: folder?.trim() || "",
@@ -55,9 +68,11 @@ export function getWeeklyNoteSettings(): IPeriodicNoteSettings {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pluginManager = (<any>window.app).plugins;
 
-    const calendarSettings = pluginManager.getPlugin("calendar")?.options;
-    const periodicNotesSettings =
-      pluginManager.getPlugin("periodic-notes")?.settings?.weekly;
+    // Try dev version first, then fall back to production
+    const calendarSettings =
+      pluginManager.getPlugin("calendar-anks")?.options ||
+      pluginManager.getPlugin("calendar")?.options;
+    const periodicNotesSettings = getPeriodicNotesPlugin()?.settings?.weekly;
 
     if (shouldUsePeriodicNotesSettings("weekly")) {
       return {
@@ -85,13 +100,10 @@ export function getWeeklyNoteSettings(): IPeriodicNoteSettings {
  * to keep behavior of creating a new note in-sync.
  */
 export function getMonthlyNoteSettings(): IPeriodicNoteSettings {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pluginManager = (<any>window.app).plugins;
-
   try {
     const settings =
       (shouldUsePeriodicNotesSettings("monthly") &&
-        pluginManager.getPlugin("periodic-notes")?.settings?.monthly) ||
+        getPeriodicNotesPlugin()?.settings?.monthly) ||
       {};
 
     return {
@@ -109,13 +121,10 @@ export function getMonthlyNoteSettings(): IPeriodicNoteSettings {
  * to keep behavior of creating a new note in-sync.
  */
 export function getQuarterlyNoteSettings(): IPeriodicNoteSettings {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pluginManager = (<any>window.app).plugins;
-
   try {
     const settings =
       (shouldUsePeriodicNotesSettings("quarterly") &&
-        pluginManager.getPlugin("periodic-notes")?.settings?.quarterly) ||
+        getPeriodicNotesPlugin()?.settings?.quarterly) ||
       {};
 
     return {
@@ -133,13 +142,10 @@ export function getQuarterlyNoteSettings(): IPeriodicNoteSettings {
  * to keep behavior of creating a new note in-sync.
  */
 export function getYearlyNoteSettings(): IPeriodicNoteSettings {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pluginManager = (<any>window.app).plugins;
-
   try {
     const settings =
       (shouldUsePeriodicNotesSettings("yearly") &&
-        pluginManager.getPlugin("periodic-notes")?.settings?.yearly) ||
+        getPeriodicNotesPlugin()?.settings?.yearly) ||
       {};
 
     return {
