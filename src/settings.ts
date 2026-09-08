@@ -64,6 +64,7 @@ export function getWeeklyNoteSettings(): IPeriodicNoteSettings {
         format: periodicNotesSettings.format || DEFAULT_WEEKLY_NOTE_FORMAT,
         folder: periodicNotesSettings.folder?.trim() || "",
         template: periodicNotesSettings.template?.trim() || "",
+        allowPrefixMatch: periodicNotesSettings.allowPrefixMatch ?? false,
       };
     }
 
@@ -72,6 +73,7 @@ export function getWeeklyNoteSettings(): IPeriodicNoteSettings {
       format: settings.weeklyNoteFormat || DEFAULT_WEEKLY_NOTE_FORMAT,
       folder: settings.weeklyNoteFolder?.trim() || "",
       template: settings.weeklyNoteTemplate?.trim() || "",
+      allowPrefixMatch: false, // Calendar plugin doesn't support this setting
     };
   } catch (err) {
     console.info("No custom weekly note settings found!", err);

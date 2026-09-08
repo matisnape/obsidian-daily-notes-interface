@@ -3,4 +3,5 @@ export interface IPeriodicNoteSettings {
   folder?: string;
   format?: string;
   template?: string;
+  allowPrefixMatch?: boolean;
 }

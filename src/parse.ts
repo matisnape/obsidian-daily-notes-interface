@@ -70,26 +70,44 @@ function getDateFromFilename(
     year: getYearlyNoteSettings,
   };
 
-  const format = getSettings[granularity]().format.split("/").pop();
-  const noteDate = window.moment(filename, format, true);
+  const settings = getSettings[granularity]();
+  const format = settings.format.split("/").pop();
+  const allowPrefixMatch = settings.allowPrefixMatch ?? false;
 
-  if (!noteDate.isValid()) {
+  // First try exact match (strict mode) - backward compatible
+  let noteDate = window.moment(filename, format, true);
+  if (noteDate.isValid()) {
+    // Exact match found
+    if (isFormatAmbiguous(format, granularity)) {
+      if (granularity === "week") {
+        const cleanFormat = removeEscapedCharacters(format);
+        if (/w{1,2}/i.test(cleanFormat)) {
+          return window.moment(
+            filename,
+            // If format contains week, remove day & month formatting
+            format.replace(/M{1,4}/g, "").replace(/D{1,4}/g, ""),
+            false
+          );
+        }
+      }
+    }
+    return noteDate;
+  }
+
+  // Only try prefix matching if the setting is enabled
+  if (!allowPrefixMatch) {
     return null;
   }
 
-  if (isFormatAmbiguous(format, granularity)) {
-    if (granularity === "week") {
-      const cleanFormat = removeEscapedCharacters(format);
-      if (/w{1,2}/i.test(cleanFormat)) {
-        return window.moment(
-          filename,
-          // If format contains week, remove day & month formatting
-          format.replace(/M{1,4}/g, "").replace(/D{1,4}/g, ""),
-          false
-        );
-      }
+  // Try prefix matching (non-strict mode)
+  // This allows filenames like "2026-W07, 09.02 - 15.02" to match format "gggg-[W]ww"
+  noteDate = window.moment(filename, format, false);
+  if (noteDate.isValid()) {
+    // Verify the formatted date matches the start of the filename
+    const formattedDate = noteDate.format(format);
+    if (filename.startsWith(formattedDate)) {
+      return noteDate;
     }
   }
-
-  return noteDate;
+  return null;
 }
