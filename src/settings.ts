@@ -11,7 +11,8 @@ import { IPeriodicNoteSettings } from "./types";
  * Resolve the periodic-notes plugin instance, preferring a side-installed
  * dev build (id "periodic-notes-anks") over the community-store build.
  */
-function getPeriodicNotesPlugin() {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function getPeriodicNotesPlugin() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginManager = (<any>window.app).plugins;
   // Try dev version first, then fall back to production

@@ -49,23 +49,17 @@ export function appHasWeeklyNotesPluginLoaded(): boolean {
 }
 
 export function appHasMonthlyNotesPluginLoaded(): boolean {
-  const { app } = window;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const periodicNotes = (<any>app).plugins.getPlugin("periodic-notes");
+  const periodicNotes = getPeriodicNotesPlugin();
   return periodicNotes && periodicNotes.settings?.monthly?.enabled;
 }
 
 export function appHasQuarterlyNotesPluginLoaded(): boolean {
-  const { app } = window;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const periodicNotes = (<any>app).plugins.getPlugin("periodic-notes");
+  const periodicNotes = getPeriodicNotesPlugin();
   return periodicNotes && periodicNotes.settings?.quarterly?.enabled;
 }
 
 export function appHasYearlyNotesPluginLoaded(): boolean {
-  const { app } = window;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const periodicNotes = (<any>app).plugins.getPlugin("periodic-notes");
+  const periodicNotes = getPeriodicNotesPlugin();
   return periodicNotes && periodicNotes.settings?.yearly?.enabled;
 }
 
@@ -84,6 +78,7 @@ import {
   getMonthlyNoteSettings,
   getQuarterlyNoteSettings,
   getYearlyNoteSettings,
+  getPeriodicNotesPlugin,
 } from "./settings";
 import { createDailyNote, getDailyNote, getAllDailyNotes } from "./daily";
 import { createWeeklyNote, getAllWeeklyNotes, getWeeklyNote } from "./weekly";
